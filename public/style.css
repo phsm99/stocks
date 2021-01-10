@@ -1,0 +1,22 @@
+table, th, td {
+    border: 1px solid black;
+  }
+
+  body{
+      font-size: large;
+  }
+  table{
+      font-size: large;
+  }
+
+  .valorizacaoPositiva{
+    color: green;
+  }
+
+  .valorizacaoNegativa{
+    color: red;
+    }
+
+  .nomeAcao{
+      text-transform: uppercase;
+  }
