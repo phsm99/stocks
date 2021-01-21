@@ -13,9 +13,19 @@ app.use(express.json())
 
 app.use('/public', express.static('public'));
 
-app.get('/:ticket', async (req, res) => {
+app.get('/acao/:ticker', async (req, res) => {
     try {
-        const retorno = await consultarValorAcao(req.params.ticket);
+        const retorno = await consultarValorAcao(req.params.ticker);
+        res.json({ valor: retorno });
+    } catch (error) {
+        res.status(400).send({ error: error.toString() })
+    }
+
+})
+
+app.get('/fii/:ticker', async (req, res) => {
+    try {
+        const retorno = await consultarValorFii(req.params.ticker);
         res.json({ valor: retorno });
     } catch (error) {
         res.status(400).send({ error: error.toString() })
@@ -30,21 +40,20 @@ app.get('/', (request, response) => {
 server.listen(porta);
 console.log('ouvindo na porta: ', porta);
 
-const consultarValorAcao = async (ticket) => {
-    if (!ticket) {
-        throw new Error('Favor informar Ticket!');
+const consultarValorAcao = async (ticker) => {
+    if (!ticker) {
+        throw new Error('Favor informar ticker!');
     }
-    if (ticket.length < 5) {
-        throw new Error('Ticket incorreto');
+    if (ticker.length < 5) {
+        throw new Error('ticker incorreto');
     }
-    const url = 'http://www.fundamentus.com.br/detalhes.php?papel=' + ticket
+    const url = 'http://www.fundamentus.com.br/detalhes.php?papel=' + ticker
     let response = await axios.get(url);
-
 
     const html = response.data;
     const $ = cheerio.load(html);
     if ($.text().includes('Nenhum papel encontrado')) {
-        throw new Error('Ticket não encontrado');
+        throw new Error('ticker não encontrado');
     }
     else {
         let elementValue = $('.data.destaque.w3')
@@ -52,4 +61,27 @@ const consultarValorAcao = async (ticket) => {
         return convertedValue;
     }
 
+}
+
+const consultarValorFii = async (ticker) => {
+    if (!ticker) {
+        throw new Error('Favor informar ticker!');
+    }
+    if (ticker.length < 5) {
+        throw new Error('ticker incorreto');
+    }
+
+    const url = 'http://www.fundamentus.com.br/detalhes.php?papel=' + ticker
+    let response = await axios.get(url);
+
+    const html = response.data;
+    const $ = cheerio.load(html);
+    if ($.text().includes('Nenhum papel encontrado')) {
+        throw new Error('ticker não encontrado');
+    }
+    else {
+        let elementValue = $('.data.destaque.w3')
+        let convertedValue = parseFloat(elementValue.text().replace(',', '.'))
+        return convertedValue;
+    }
 }

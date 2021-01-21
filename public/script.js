@@ -1,12 +1,14 @@
 let carteira = {
   totalAcoes: 0,
+  totalFiis: 0,
   acoes: [],
+  fiis: [],
 };
 
 let dataUltimaPesquisa;
 
-const urlA = `${window.location.href}`;
-
+const urlBase = `${window.location.href}`;
+//const urlBase = `http://localhost:3333`; //rodar local
 
 const salvaCarteira = () => {
   localStorage.setItem("carteira", JSON.stringify(carteira));
@@ -38,10 +40,12 @@ onload = () => {
 
   if (verificaDataPesquisa()) {
     recarregarValorAcoes();
+    recarregarValorFiis();
     salvaDataUltimaPesquisa();
     salvaCarteira();
   }
   else {
+    recarregarValorAcoes();
     salvaDataUltimaPesquisa();
   }
 
@@ -61,12 +65,71 @@ function verificaDataPesquisa() {
 function recarregarValorAcoes() {
   if (carteira.acoes.length > 0) {
     carteira.acoes.forEach(acao => {
-      acao.valor = buscarPrecoAcao(acao.ticketAcao);
+      acao.valor = buscarPrecoAcao(acao.tickerAcao);
+    });
+  }
+}
+
+function recarregarValorFiis(){
+  if (carteira.fiis.length > 0) {
+    carteira.fiis.forEach(fii => {
+      fii.valor = buscarPrecoFii(fii.tickerFii);
     });
   }
 }
 
 const mostraItens = () => {
+  limparCampos();
+
+  let valoresAcao = {
+    total: 0,
+    valorPago: 0,
+    valorTotal: 0
+  }
+
+  let valoresFiis = {
+    total: 0,
+    valorPago: 0,
+    valorTotal: 0
+  }
+
+  carteira.acoes.forEach(acao => {
+    inserirTabelaAcoes(acao);
+    adicionarNovaAcaoSelect(acao.tickerAcao)
+    valoresAcao.total += acao.qntd;
+    valoresAcao.valorPago += acao.precoMedio * acao.qntd;
+    valoresAcao.valorTotal += acao.valor > 0 ? acao.valor * acao.qntd : 0
+  });
+
+  carteira.fiis.forEach(fii => {
+    inserirTabelaFiis(fii);
+    adicionarNovoFiiSelect(fii.tickerFii)
+    valoresFiis.total += fii.qntd;
+    valoresFiis.valorPago += fii.precoMedio * fii.qntd;
+    valoresFiis.valorTotal += fii.valor > 0 ? fii.valor * fii.qntd : 0
+  });
+
+  montarLabelsValoresAcao(valoresAcao);
+  montarLabelsValoresFiis(valoresFiis);
+};
+
+function montarLabelsValoresAcao(acao) {
+  $("#TotalQntdAcao").html(acao.total);
+  $("#TotalPagoAcao").html(formatarValor(acao.valorPago));
+  $("#TotalValorAcao").html(formatarValor(acao.valorTotal));
+  $("#Valorizacao").html(formatarValor(acao.valorTotal - acao.valorPago));
+  $("#Valorizacao").addClass(acao.valorTotal - acao.valorPago > 0 ? "valorizacaoPositiva" : "valorizacaoNegativa")
+}
+
+function montarLabelsValoresFiis(fii) {
+  $("#TotalQntdFii").html(fii.total);
+  $("#TotalPagoFii").html(formatarValor(fii.valorPago));
+  $("#TotalValorFii").html(formatarValor(fii.valorTotal));
+  $("#ValorizacaoFii").html(formatarValor(fii.valorTotal - fii.valorPago));
+  $("#ValorizacaoFii").addClass(fii.valorTotal - fii.valorPago > 0 ? "valorizacaoPositiva" : "valorizacaoNegativa")
+}
+
+function limparCampos() {
   const listaDeAcoes = document.querySelector('#bodyTabelaAcoes');
   listaDeAcoes.innerHTML = '';
   $('#selectAcoes option').each(function () {
@@ -75,40 +138,33 @@ const mostraItens = () => {
     }
   });
 
-  let total = 0;
-  let valorPago = 0;
-  let valorTotal = 0;
-
-  carteira.acoes.forEach(acao => {
-    inserirTabelaAcoes(acao);
-    adicionarNovaAcaoSelect(acao.ticketAcao)
-    total += acao.qntd;
-    valorPago += acao.precoMedio * acao.qntd;
-    valorTotal += acao.valor > 0 ? acao.valor * acao.qntd : 0
+  const listaDeFiis = document.querySelector('#bodyTabelaFii');
+  listaDeFiis.innerHTML = '';
+  $('#selectFii option').each(function () {
+    if ($(this).val() != '0') {
+      $(this).remove();
+    }
   });
 
-  $("#TotalQntdAcao").html(total);
-  $("#TotalPagoAcao").html(formatarValor(valorPago));
-  $("#TotalValorAcao").html(formatarValor(valorTotal));
-  $("#Valorizacao").html(formatarValor(valorTotal - valorPago));
-  $("#Valorizacao").addClass(valorTotal - valorPago > 0 ? "valorizacaoPositiva" : "valorizacaoNegativa")
-};
+  $("#Valorizacao").removeClass();
+  $("#ValorizacaoFii").removeClass();
+}
 
 
 function AdicionarCompraAcao() {
-  const ticketSelectAcao = $("#selectAcoes option:selected")[0].value;
+  const tickerSelectAcao = $("#selectAcoes option:selected")[0].value;
   const qntdSelectAcao = $("#inputInserirQntdCompraAcao")[0].value;
   const precoAcao = $("#inputInserirValorCompraAcao")[0].value;
 
   if (
-    ticketSelectAcao &&
-    ticketSelectAcao != 0 &&
+    tickerSelectAcao &&
+    tickerSelectAcao != 0 &&
     qntdSelectAcao &&
     qntdSelectAcao != "0" &&
     precoAcao &&
     precoAcao != "0,00"
   ) {
-    const acao = carteira.acoes.find((x) => x.ticketAcao == ticketSelectAcao);
+    const acao = carteira.acoes.find((x) => x.tickerAcao == tickerSelectAcao);
     const floatPrecoAcao = parseFloat(precoAcao.replace(',', '.'))
 
     acao.qntd += parseInt(qntdSelectAcao);
@@ -120,7 +176,7 @@ function AdicionarCompraAcao() {
     carteira.totalAcoes += parseInt(qntdSelectAcao);
 
     calcularPorcentagemAcoes();
-    calcularPrecoMedioPorAcao(ticketSelectAcao);
+    calcularPrecoMedioPorAcao(tickerSelectAcao);
 
     salvaCarteira();
 
@@ -133,41 +189,39 @@ function AdicionarCompraAcao() {
 }
 
 function removerAcao() {
-  const ticketSelectAcao = $("#selectAcoes option:selected")[0].value;
+  const tickerSelectAcao = $("#selectAcoes option:selected")[0].value;
   const qntdSelectAcao = $("#inputInserirQntdCompraAcao")[0].value;
 
   if (
-    ticketSelectAcao &&
-    ticketSelectAcao != 0 &&
+    tickerSelectAcao &&
+    tickerSelectAcao != 0 &&
     qntdSelectAcao &&
     qntdSelectAcao != "0"
   ) {
-    const acao = carteira.acoes.find((x) => x.ticketAcao == ticketSelectAcao);
+    const acao = carteira.acoes.find((x) => x.tickerAcao == tickerSelectAcao);
 
     if (acao.qntd >= parseInt(qntdSelectAcao)) {
       acao.qntd -= parseInt(qntdSelectAcao);
-    }
 
-    acao.historico.push({
-      qntdComprada: qntdSelectAcao,
-      precoComprada: 0,
-      tipo: '-'
-    });
+      acao.historico.push({
+        qntdComprada: qntdSelectAcao,
+        precoComprada: 0,
+        tipo: '-'
+      });
 
-    if (carteira.totalAcoes >= parseInt(qntdSelectAcao)) {
       carteira.totalAcoes -= parseInt(qntdSelectAcao);
+
+      calcularPorcentagemAcoes();
+      calcularPrecoMedioPorAcao(tickerSelectAcao);
+
+      salvaCarteira();
+
+      $("#selectAcoes").val("0");
+      $("#inputInserirQntdCompraAcao").val("");
+      $("#inputInserirValorCompraAcao").val("");
+
+      mostraItens();
     }
-
-    calcularPorcentagemAcoes();
-    calcularPrecoMedioPorAcao(ticketSelectAcao);
-
-    salvaCarteira();
-
-    $("#selectAcoes").val("0");
-    $("#inputInserirQntdCompraAcao").val("");
-    $("#inputInserirValorCompraAcao").val("");
-
-    mostraItens();
   }
 }
 
@@ -178,8 +232,8 @@ function calcularPorcentagemAcoes() {
   });
 }
 
-function calcularPrecoMedioPorAcao(ticketAcao) {
-  const acao = carteira.acoes.find((x) => x.ticketAcao == ticketAcao);
+function calcularPrecoMedioPorAcao(tickerAcao) {
+  const acao = carteira.acoes.find((x) => x.tickerAcao == tickerAcao);
   if (acao.qntd == 0) {
     acao.precoMedio = 0;
   }
@@ -192,8 +246,6 @@ function calcularPrecoMedioPorAcao(ticketAcao) {
         qntd += parseInt(compra.qntdComprada);
       }
     });
-    console.log('sun', sum);
-    console.log(qntd);
     acao.precoMedio = sum / qntd;
   }
 }
@@ -201,8 +253,8 @@ function calcularPrecoMedioPorAcao(ticketAcao) {
 function inserirTabelaAcoes(acao) {
   const valorizacao = (acao.qntd * acao.valor) - (acao.qntd * acao.precoMedio);
   $("#TabelaAcoes").find("tbody").append(`
-        <tr id="acao_${acao.ticketAcao}"> 
-            <td class="nomeAcao">${acao.ticketAcao}</td>
+        <tr id="acao_${acao.tickerAcao}"> 
+            <td class="nomeAcao">${acao.tickerAcao}</td>
             <td>${acao.qntd}</td>
             <td>${acao.porcentagem}%</td>
             <td>${formatarValor(acao.precoMedio)}</td>
@@ -217,14 +269,14 @@ function formatarValor(valor) {
 
 function inserirAcao() {
   const input = $("#input_inserir")[0];
-  const ticketAcao = input.value;
-  if (ticketAcao) {
-    const upperTicketAcao = ticketAcao.toUpperCase();
-    const acaoExistente = carteira.acoes.find(x => x.ticketAcao == upperTicketAcao);
+  const tickerAcao = input.value;
+  if (tickerAcao) {
+    const uppertickerAcao = tickerAcao.toUpperCase();
+    const acaoExistente = carteira.acoes.find(x => x.tickerAcao == uppertickerAcao);
     if (!acaoExistente) {
-      const valorAcao = buscarPrecoAcao(upperTicketAcao);
+      const valorAcao = buscarPrecoAcao(uppertickerAcao);
       const objetoAcao = {
-        ticketAcao: upperTicketAcao,
+        tickerAcao: uppertickerAcao,
         qntd: 0,
         porcentagem: 0,
         precoMedio: parseFloat(0),
@@ -233,7 +285,7 @@ function inserirAcao() {
       };
       inserirAcaoVariavel(objetoAcao);
       inserirTabelaAcoes(objetoAcao);
-      adicionarNovaAcaoSelect(upperTicketAcao);
+      adicionarNovaAcaoSelect(uppertickerAcao);
 
       salvaCarteira();
 
@@ -242,8 +294,8 @@ function inserirAcao() {
   }
 }
 
-function adicionarNovaAcaoSelect(ticketAcao) {
-  $("#selectAcoes").append(new Option(ticketAcao, ticketAcao));
+function adicionarNovaAcaoSelect(tickerAcao) {
+  $("#selectAcoes").append(new Option(tickerAcao, tickerAcao));
 }
 
 function inserirAcaoVariavel(acao) {
@@ -251,11 +303,11 @@ function inserirAcaoVariavel(acao) {
   carteira.totalAcoes += acao.qntd;
 }
 
-function buscarPrecoAcao(ticket) {
+function buscarPrecoAcao(ticker) {
   let retorno = 0;
 
   $.ajax({
-    url: urlA + ticket,
+    url: `${urlBase}/acao/${ticker}`,
     type: "get",
     async: false,
     success: function (data) {
@@ -267,4 +319,171 @@ function buscarPrecoAcao(ticket) {
   });
 
   return retorno;
+}
+
+function inserirFii() {
+  const input = $("#input_inserir_fii")[0];
+  const tickerFii = input.value;
+  if (tickerFii) {
+    const uppertickerFii = tickerFii.toUpperCase();
+    const fiiExistente = carteira.fiis.find(x => x.tickerFii == uppertickerFii);
+    if (!fiiExistente) {
+      const valorTicker = buscarPrecoFii(uppertickerFii);
+      const objetoFii = {
+        tickerFii: uppertickerFii,
+        qntd: 0,
+        porcentagem: 0,
+        precoMedio: parseFloat(0),
+        valor: valorTicker,
+        historico: [],
+      };
+      inserirFiiVariavel(objetoFii);
+      inserirTabelaFiis(objetoFii);
+      adicionarNovoFiiSelect(uppertickerFii);
+
+      salvaCarteira();
+
+      input.value = "";
+    }
+  }
+}
+
+function inserirFiiVariavel(fii) {
+  carteira.fiis.push(fii);
+  carteira.totalFiis += fii.qntd;
+}
+
+function inserirTabelaFiis(fii) {
+  const valorizacao = (fii.qntd * fii.valor) - (fii.qntd * fii.precoMedio);
+  $("#TabelaFii").find("tbody").append(`
+        <tr id="fii_${fii.tickerFii}"> 
+            <td class="nomeFii">${fii.tickerFii}</td>
+            <td>${fii.qntd}</td>
+            <td>${fii.porcentagem}%</td>
+            <td>${formatarValor(fii.precoMedio)}</td>
+            <td>${formatarValor(fii.valor)}</td> 
+            <td class="${valorizacao > 0 ? "valorizacaoPositiva" : "valorizacaoNegativa"}">${formatarValor(valorizacao)}</td> 
+        </tr>`);
+}
+
+function adicionarNovoFiiSelect(fii) {
+  $("#selectFii").append(new Option(fii, fii));
+}
+
+function buscarPrecoFii(ticker) {
+  let retorno = 0;
+
+  $.ajax({
+    url: `${urlBase}/fii/${ticker}`,
+    type: "get",
+    async: false,
+    success: function (data) {
+      retorno = data.valor;
+    },
+    error: function (request, status, error) {
+      retorno = 0;
+    },
+  });
+
+  console.log(retorno);
+  return retorno;
+}
+
+function AdicionarCompraFii() {
+  const tickerSelectFii = $("#selectFii option:selected")[0].value;
+  const qntdSelectFii = $("#inputInserirQntdCompraFii")[0].value;
+  const precoFii = $("#inputInserirValorCompraFii")[0].value;
+
+  if (
+    tickerSelectFii &&
+    tickerSelectFii != 0 &&
+    qntdSelectFii &&
+    qntdSelectFii != "0" &&
+    precoFii &&
+    precoFii != "0,00"
+  ) {
+    const fii = carteira.fiis.find((x) => x.tickerFii == tickerSelectFii);
+    const floatPrecoFii = parseFloat(precoFii.replace(',', '.'))
+
+    fii.qntd += parseInt(qntdSelectFii);
+    fii.historico.push({
+      qntdComprada: qntdSelectFii,
+      precoComprada: floatPrecoFii,
+      tipo: '+'
+    });
+    carteira.totalFiis += parseInt(qntdSelectFii);
+
+    calcularPorcentagemFiis();
+    calcularPrecoMedioPorFii(tickerSelectFii);
+
+    salvaCarteira();
+
+    $("#selectFii").val("0");
+    $("#inputInserirQntdCompraFii").val("");
+    $("#inputInserirValorCompraFii").val("");
+
+    mostraItens();
+  }
+}
+
+function calcularPorcentagemFiis() {
+  carteira.fiis.forEach((fii) => {
+    const ret = Math.round((fii.qntd / carteira.totalFiis) * 100);
+    fii.porcentagem = isNaN(ret) ? 0 : ret;
+  });
+}
+
+function calcularPrecoMedioPorFii(tickerFii) {
+  const fii = carteira.fiis.find((x) => x.tickerFii == tickerFii);
+  if (fii.qntd == 0) {
+    fii.precoMedio = 0;
+  }
+  else {
+    let sum = 0;
+    let qntd = 0;
+    fii.historico.forEach(compra => {
+      if (compra.tipo == "+") {
+        sum += (compra.qntdComprada * compra.precoComprada);
+        qntd += parseInt(compra.qntdComprada);
+      }
+    });
+    fii.precoMedio = sum / qntd;
+  }
+}
+
+function removerFii() {
+  const tickerSelectFii = $("#selectFii option:selected")[0].value;
+  const qntdSelectFii = $("#inputInserirQntdCompraFii")[0].value;
+
+  if (
+    tickerSelectFii &&
+    tickerSelectFii != 0 &&
+    qntdSelectFii &&
+    qntdSelectFii != "0"
+  ) {
+    const fii = carteira.fiis.find((x) => x.tickerFii == tickerSelectFii);
+
+    if (fii.qntd >= parseInt(qntdSelectFii)) {
+      fii.qntd -= parseInt(qntdSelectFii);
+      carteira.totalFiis -= parseInt(qntdSelectFii);
+
+      fii.historico.push({
+        qntdComprada: qntdSelectFii,
+        precoComprada: 0,
+        tipo: '-'
+      });
+
+
+      calcularPorcentagemFiis();
+      calcularPrecoMedioPorFii(tickerSelectFii);
+
+      salvaCarteira();
+
+      $("#selectFii").val("0");
+      $("#inputInserirQntdCompraFii").val("");
+      $("#inputInserirValorCompraFii").val("");
+
+      mostraItens();
+    }
+  }
 }
