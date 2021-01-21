@@ -1,3 +1,6 @@
+const urlBase = `${window.location.href}`;
+//const urlBase = `http://localhost:3333`; //rodar local
+
 let carteira = {
   totalAcoes: 0,
   totalFiis: 0,
@@ -6,9 +9,6 @@ let carteira = {
 };
 
 let dataUltimaPesquisa;
-
-const urlBase = `${window.location.href}`;
-//const urlBase = `http://localhost:3333`; //rodar local
 
 const salvaCarteira = () => {
   localStorage.setItem("carteira", JSON.stringify(carteira));
