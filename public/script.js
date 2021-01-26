@@ -1,5 +1,5 @@
 const urlBase = `${window.location.href}`;
-//const urlBase = `http://localhost:3333`; //rodar local
+//const urlBase = `http://localhost:3333/`; //rodar local
 
 let carteira = {
   totalAcoes: 0,
@@ -307,7 +307,7 @@ function buscarPrecoAcao(ticker) {
   let retorno = 0;
 
   $.ajax({
-    url: `${urlBase}/acao/${ticker}`,
+    url: `${urlBase}acao/${ticker}`,
     type: "get",
     async: false,
     success: function (data) {
@@ -374,7 +374,7 @@ function buscarPrecoFii(ticker) {
   let retorno = 0;
 
   $.ajax({
-    url: `${urlBase}/fii/${ticker}`,
+    url: `${urlBase}fii/${ticker}`,
     type: "get",
     async: false,
     success: function (data) {
