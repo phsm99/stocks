@@ -1,4 +1,5 @@
-Projeto bem básico para administrar ações e fiis.
+Projeto bem básico para administrar ações e fiis.<br />
+Você pode acessar uma versão em produção pelo link: https://pedro-stocks.herokuapp.com/
 <br /><br />
 Os dados são armazenados no localStorage do próprio navegador.<br />
 É necessário um web server, escrito em Node.JS, para fazer a raspagem em um site.
