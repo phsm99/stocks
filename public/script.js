@@ -70,7 +70,7 @@ function recarregarValorAcoes() {
   }
 }
 
-function recarregarValorFiis(){
+function recarregarValorFiis() {
   if (carteira.fiis.length > 0) {
     carteira.fiis.forEach(fii => {
       fii.valor = buscarPrecoFii(fii.tickerFii);
@@ -225,9 +225,16 @@ function removerAcao() {
   }
 }
 
+function getSum(total, num) {
+  return total + num
+}
+
 function calcularPorcentagemAcoes() {
+  const arraySoma = carteira.acoes.map(x => x.qntd * x.valor);
+  valorTotalCarteira = arraySoma.reduce(getSum, 0);
+
   carteira.acoes.forEach((acao) => {
-    const ret = Math.round((acao.qntd / carteira.totalAcoes) * 100);
+    const ret = Math.round(((acao.qntd * acao.valor) / valorTotalCarteira) * 100);
     acao.porcentagem = isNaN(ret) ? 0 : ret;
   });
 }
