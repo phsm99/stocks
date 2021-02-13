@@ -1,5 +1,5 @@
-const urlBase = `${window.location.href}`;
-//const urlBase = `http://localhost:3333/`; //rodar local
+let urlBase = `${window.location.href}`;
+urlBase = `http://localhost:3333/`; //rodar local
 
 let carteira = {
   totalAcoes: 0,
@@ -41,6 +41,8 @@ onload = () => {
   if (verificaDataPesquisa()) {
     recarregarValorAcoes();
     recarregarValorFiis();
+    calcularPorcentagemAcoes();
+    calcularPorcentagemFiis();
     salvaDataUltimaPesquisa();
     salvaCarteira();
   }
@@ -234,7 +236,7 @@ function calcularPorcentagemAcoes() {
   valorTotalCarteira = arraySoma.reduce(getSum, 0);
 
   carteira.acoes.forEach((acao) => {
-    const ret = Math.round(((acao.qntd * acao.valor) / valorTotalCarteira) * 100);
+    const ret = (((acao.qntd * acao.valor) / valorTotalCarteira) * 100).toFixed(2);
     acao.porcentagem = isNaN(ret) ? 0 : ret;
   });
 }
@@ -434,8 +436,11 @@ function AdicionarCompraFii() {
 }
 
 function calcularPorcentagemFiis() {
+  const arraySoma = carteira.acoes.map(x => x.qntd * x.valor);
+  valorTotalCarteira = arraySoma.reduce(getSum, 0);
+
   carteira.fiis.forEach((fii) => {
-    const ret = Math.round((fii.qntd / carteira.totalFiis) * 100);
+    const ret = (((fii.qntd * fii.valor) / valorTotalCarteira) * 100).toFixed(2);
     fii.porcentagem = isNaN(ret) ? 0 : ret;
   });
 }
