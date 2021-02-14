@@ -6,8 +6,16 @@
     <link rel="icon" href="/public/favicon.ico" type="image/x-icon">
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"
         integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.css">
+
+    <script type="text/javascript" charset="utf8"
+        src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.js"></script>
+
     <script src="./public/script.js"></script>
     <link href="./public/style.css" rel="stylesheet" type="text/css">
+
+
 
 </head>
 
@@ -28,7 +36,8 @@
                             <th>Quantidade</th>
                             <th>Porcentagem</th>
                             <th>Preço Médio</th>
-                            <th>Valor</th>
+                            <th>Valor Unitário</th>
+                            <th>Valor Total</th>
                             <th>Valorização</th>
                         </tr>
                     </thead>
@@ -41,10 +50,10 @@
                 <label for="TotalQntdAcao">Total Ações:</label>
                 <span id="TotalQntdAcao"></span><br>
 
-                <label for="TotalPagoAcao">Total Pago:</label>
+                <label for="TotalPagoAcao">Valor Total Pago:</label>
                 <span id="TotalPagoAcao"></span><br>
 
-                <label for="TotalValorAcao">Total Valor:</label>
+                <label for="TotalValorAcao">Valor Total Valorizado:</label>
                 <span id="TotalValorAcao"></span><br>
 
                 <label for="Valorizacao">Valorização:</label>
@@ -94,7 +103,8 @@
                             <th>Quantidade</th>
                             <th>Porcentagem</th>
                             <th>Preço Médio</th>
-                            <th>Valor</th>
+                            <th>Valor Unitário</th>
+                            <th>Valor Total</th>
                             <th>Valorização</th>
                         </tr>
                     </thead>
@@ -107,10 +117,10 @@
                 <label for="TotalQntdFii">Total Fii:</label>
                 <span id="TotalQntdFii"></span><br>
 
-                <label for="TotalPagoFii">Total Pago:</label>
+                <label for="TotalPagoFii">Valor Total Pago:</label>
                 <span id="TotalPagoFii"></span><br>
 
-                <label for="TotalValorFii">Total Valor:</label>
+                <label for="TotalValorFii">Valor Total Valorizado:</label>
                 <span id="TotalValorFii"></span><br>
 
                 <label for="ValorizacaoFii">Valorização:</label>
@@ -145,7 +155,7 @@
     <br>
     <br>
     <br>
-    
+
 </body>
 
 </html>

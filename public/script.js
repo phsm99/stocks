@@ -8,7 +8,40 @@ let carteira = {
   fiis: [],
 };
 
+
+jQuery.extend(jQuery.fn.dataTableExt.oSort, {
+  "currency-pre": function (a) {
+    a = (a === "-") ? 0 : a.replace(/[^\d\-\.]/g, "");
+    return parseFloat(a);
+  },
+
+  "currency-asc": function (a, b) {
+    return a - b;
+  },
+
+  "currency-desc": function (a, b) {
+    return b - a;
+  }
+});
+
+let configDataTable = {
+  stateSave: true,
+  language: {
+    url: 'https://cdn.datatables.net/plug-ins/1.10.22/i18n/Portuguese-Brasil.json'
+  },
+  columnDefs: [
+    { type: 'currency', targets: [3, 4, 5, 6] }
+  ]
+};
+
 let dataUltimaPesquisa;
+
+$(document).ready(function () {
+  $('#TabelaAcoes').DataTable(configDataTable);
+  $('#TabelaFii').DataTable(configDataTable);
+  $(".dataTables_empty").remove();
+});
+
 
 const salvaCarteira = () => {
   localStorage.setItem("carteira", JSON.stringify(carteira));
@@ -268,6 +301,7 @@ function inserirTabelaAcoes(acao) {
             <td>${acao.porcentagem}%</td>
             <td>${formatarValor(acao.precoMedio)}</td>
             <td>${formatarValor(acao.valor)}</td> 
+            <td>${formatarValor(acao.valor * acao.qntd)}</td> 
             <td class="${valorizacao > 0 ? "valorizacaoPositiva" : "valorizacaoNegativa"}">${formatarValor(valorizacao)}</td> 
         </tr>`);
 }
@@ -371,6 +405,7 @@ function inserirTabelaFiis(fii) {
             <td>${fii.porcentagem}%</td>
             <td>${formatarValor(fii.precoMedio)}</td>
             <td>${formatarValor(fii.valor)}</td> 
+            <td>${formatarValor(fii.valor * fii.qntd)}</td> 
             <td class="${valorizacao > 0 ? "valorizacaoPositiva" : "valorizacaoNegativa"}">${formatarValor(valorizacao)}</td> 
         </tr>`);
 }
@@ -394,7 +429,6 @@ function buscarPrecoFii(ticker) {
     },
   });
 
-  console.log(retorno);
   return retorno;
 }
 
