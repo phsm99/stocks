@@ -1,5 +1,5 @@
 let urlBase = `${window.location.href}`;
-urlBase = `http://localhost:3333/`; //rodar local
+//urlBase = `http://localhost:3333/`; //rodar local
 
 let carteira = {
   totalAcoes: 0,
