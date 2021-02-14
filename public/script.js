@@ -36,11 +36,6 @@ let configDataTable = {
 
 let dataUltimaPesquisa;
 
-$(document).ready(function () {
-  $('#TabelaAcoes').DataTable(configDataTable);
-  $('#TabelaFii').DataTable(configDataTable);
-  $(".dataTables_empty").remove();
-});
 
 
 const salvaCarteira = () => {
@@ -85,6 +80,9 @@ onload = () => {
   }
 
   mostraItens();
+  $('#TabelaAcoes').DataTable(configDataTable);
+  $('#TabelaFii').DataTable(configDataTable);
+  $(".dataTables_empty").remove();
 };
 
 function verificaDataPesquisa() {
