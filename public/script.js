@@ -127,11 +127,14 @@ const mostraItens = () => {
   }
 
   carteira.acoes.forEach(acao => {
-    inserirTabelaAcoes(acao);
-    adicionarNovaAcaoSelect(acao.tickerAcao)
-    valoresAcao.total += acao.qntd;
-    valoresAcao.valorPago += acao.precoMedio * acao.qntd;
-    valoresAcao.valorTotal += acao.valor > 0 ? acao.valor * acao.qntd : 0
+    if (acao.qntd > 0) {
+
+      inserirTabelaAcoes(acao);
+      adicionarNovaAcaoSelect(acao.tickerAcao)
+      valoresAcao.total += acao.qntd;
+      valoresAcao.valorPago += acao.precoMedio * acao.qntd;
+      valoresAcao.valorTotal += acao.valor > 0 ? acao.valor * acao.qntd : 0
+    }
   });
 
   carteira.fiis.forEach(fii => {
