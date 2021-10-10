@@ -20,3 +20,7 @@ table, th, td {
   .nomeAcao{
       text-transform: uppercase;
   }
+
+  div[class^="div_"] {
+    border-style: solid;
+  }

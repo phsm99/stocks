@@ -21,7 +21,36 @@
 
 <body>
     <div class="container">
+        <div class="div_bitcoin">
+            Bitcoin<br><br>
+            <div class="bitcoin">
+                <label for="ValorAtualBitcoin">Valor Atual:</label>
+                <span id="ValorAtualBitcoin"></span><br><br>
+
+                <label for="TotalQntdBitcoin">Total Bitcoin:</label>
+                <span id="TotalQntdBitcoin"></span><br>
+
+                <label for="TotalPagoBitcoin">Valor Total Bitcoin:</label>
+                <span id="TotalPagoBitcoin"></span><br>
+                <br>
+            </div>
+            <div class="gerenciarBitcoin">
+                <label for="inputInserirQntdCompraBitcoin">Quantidade:</label>
+                <input id="inputInserirQntdCompraBitcoin" type="number" />
+
+                <br>
+                <br>
+                <button id="buttonAddCompraBitcoin" onclick="AdicionarCompraBitcoin()">COMPRAR</button>
+                <button id="buttonRemoveBitcoin" onclick="removerBitcoin()">VENDER</button>
+
+
+            </div>
+        </div>
+        <br>
+        <br>
+        <br>
         <div class="div_acoes">
+            Ações<br><br>
             <div class="gerenciar">
                 <input id="input_inserir" type="text" />
                 <button id="button_inserir" onclick="inserirAcao()" />INSERIR</button>
@@ -85,10 +114,10 @@
             </div>
         </div>
         <br>
-        <br>Fiis
         <br>
         <br>
         <div class="div_fiis">
+            Fiis<br><br>
             <div class="gerenciar">
                 <input id="input_inserir_fii" type="text" />
                 <button id="button_inserir_fii" onclick="inserirFii()" />INSERIR</button>

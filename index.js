@@ -1,5 +1,7 @@
 const axios = require('axios')
 const cheerio = require('cheerio')
+const xpath = require('xpath')
+const dom = require('xmldom').DOMParser
 
 const express = require('express');
 const http = require('http');
@@ -26,6 +28,16 @@ app.get('/acao/:ticker', async (req, res) => {
 app.get('/fii/:ticker', async (req, res) => {
     try {
         const retorno = await consultarValorFii(req.params.ticker);
+        res.json({ valor: retorno });
+    } catch (error) {
+        res.status(400).send({ error: error.toString() })
+    }
+
+})
+
+app.get('/bitcoin', async (req, res) => {
+    try {
+        const retorno = await consultarValorBitcoin();
         res.json({ valor: retorno });
     } catch (error) {
         res.status(400).send({ error: error.toString() })
@@ -84,4 +96,18 @@ const consultarValorFii = async (ticker) => {
         let convertedValue = parseFloat(elementValue.text().replace(',', '.'))
         return convertedValue;
     }
+}
+
+const consultarValorBitcoin = async () => {
+    const url = 'https://www.mercadobitcoin.net/api/BTC/ticker/'
+    let response = null
+    try {
+        response = await axios.get(url)
+    } catch (error) {
+        console.log(error);
+
+    }
+
+    return response.data.ticker.last
+    
 }

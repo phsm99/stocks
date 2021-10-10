@@ -1,7 +1,11 @@
 let urlBase = `${window.location.href}`;
-//urlBase = `http://localhost:3333/`; //rodar local
+urlBase = `http://localhost:3333/`; //rodar local
 
 let carteira = {
+  bitcoin: {
+    totalBitcoin: 0,
+    valorAtual: 0
+  },
   totalAcoes: 0,
   totalFiis: 0,
   acoes: [],
@@ -79,6 +83,8 @@ onload = () => {
     salvaDataUltimaPesquisa();
   }
 
+  recarregarValorBitcoin();
+
   mostraItens();
   $('#TabelaAcoes').DataTable(configDataTable);
   $('#TabelaFii').DataTable(configDataTable);
@@ -111,6 +117,10 @@ function recarregarValorFiis() {
   }
 }
 
+function recarregarValorBitcoin() {
+  carteira.bitcoin.valorAtual = buscarPrecoBitcoin();
+}
+
 const mostraItens = () => {
   limparCampos();
 
@@ -124,6 +134,11 @@ const mostraItens = () => {
     total: 0,
     valorPago: 0,
     valorTotal: 0
+  }
+
+  valoresBitcoin = {
+    total: carteira.bitcoin.totalBitcoin,
+    valorAtual: carteira.bitcoin.valorAtual
   }
 
   carteira.acoes.forEach(acao => {
@@ -147,7 +162,14 @@ const mostraItens = () => {
 
   montarLabelsValoresAcao(valoresAcao);
   montarLabelsValoresFiis(valoresFiis);
+  montarLabelsValoresBitcoin(valoresBitcoin);
 };
+
+function montarLabelsValoresBitcoin(bitcoin) {
+  $("#ValorAtualBitcoin").html(formatarValor(parseFloat(bitcoin.valorAtual)));
+  $("#TotalQntdBitcoin").html(bitcoin.total);
+  $("#TotalPagoBitcoin").html(formatarValor(bitcoin.total * bitcoin.valorAtual));
+}
 
 function montarLabelsValoresAcao(acao) {
   $("#TotalQntdAcao").html(acao.total);
@@ -186,6 +208,19 @@ function limparCampos() {
   $("#ValorizacaoFii").removeClass();
 }
 
+function AdicionarCompraBitcoin() {
+  const qntdBitcoin = $("#inputInserirQntdCompraBitcoin")[0].value;
+  if (qntdBitcoin && qntdBitcoin != 0) {
+
+    carteira.bitcoin.totalBitcoin = parseFloat(carteira.bitcoin.totalBitcoin) + parseFloat(qntdBitcoin);
+
+    salvaCarteira();
+
+    $("#inputInserirQntdCompraBitcoin").val("");
+    mostraItens();
+  }
+
+}
 
 function AdicionarCompraAcao() {
   const tickerSelectAcao = $("#selectAcoes option:selected")[0].value;
@@ -220,6 +255,19 @@ function AdicionarCompraAcao() {
     $("#inputInserirQntdCompraAcao").val("");
     $("#inputInserirValorCompraAcao").val("");
 
+    mostraItens();
+  }
+}
+
+function removerBitcoin() {
+  const qntdBitcoin = $("#inputInserirQntdCompraBitcoin")[0].value;
+  if (qntdBitcoin && qntdBitcoin != 0) {
+
+    carteira.bitcoin.totalBitcoin = (parseFloat(carteira.bitcoin.totalBitcoin) - parseFloat(qntdBitcoin)).toFixed(10);
+
+    salvaCarteira();
+
+    $("#inputInserirQntdCompraBitcoin").val("");
     mostraItens();
   }
 }
@@ -413,6 +461,24 @@ function inserirTabelaFiis(fii) {
 
 function adicionarNovoFiiSelect(fii) {
   $("#selectFii").append(new Option(fii, fii));
+}
+
+function buscarPrecoBitcoin() {
+  let retorno = 0;
+
+  $.ajax({
+    url: `${urlBase}bitcoin`,
+    type: "get",
+    async: false,
+    success: function (data) {
+      retorno = data.valor;
+    },
+    error: function (request, status, error) {
+      retorno = 0;
+    },
+  });
+
+  return retorno;
 }
 
 function buscarPrecoFii(ticker) {
